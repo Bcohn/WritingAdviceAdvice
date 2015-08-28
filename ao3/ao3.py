@@ -7,7 +7,7 @@ import json
 AO3_BASE_URL = 'http://archiveofourown.org/'
 FANDOM = 'Lewis%20(TV)'
 CONSTRUCTED_URL = AO3_BASE_URL + 'tags/' + FANDOM + '/works'
-# TODO: construct URL based on filters
+
 
 def get_last_page_number():
     # first get the first page and count how many pages there are
@@ -37,6 +37,8 @@ def get_work(work_id):
 
 
 def parse_work(work_id):
+    print "Parsing work_id %s" % work_id
+
     html = BeautifulSoup(get_work(work_id))
 
     # TODO: extend to multi-chaptered fics
@@ -53,16 +55,16 @@ def parse_work(work_id):
         values.append(','.join(node.findAll(text=True)))
     all_data = OrderedDict(zip(keys, values))
 
-    # extract out the actual text - TODO, can't serialize to JSON
-#    text = html.find('div', class_='userstuff')
-#    all_data['text'] = text
+    # extract out the actual text - handles single chapters only
+    text = html.find('div', class_='userstuff').get_text()
+    all_data['text'] = text
 
     return all_data
 
 
 def download_fandom():
     last_page_number = get_last_page_number()
-    last_page_number = 3  # DEBUG - remove this line to get all
+    last_page_number = 1  # DEBUG - remove this line to get all
 
     all_data = OrderedDict()
     for i in range(1, last_page_number + 1):
