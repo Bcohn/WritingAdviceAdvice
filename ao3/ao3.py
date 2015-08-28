@@ -50,6 +50,13 @@ def parse_work(work_id):
     authors = html.findAll('a', class_='login author')
     all_data['authors'] = [author.get_text() for author in authors]
 
+    # extract summary of entire fic (useful because it's what people see
+    # on the works index, could be decisive in picking whether to read
+    # a certain fic)
+    summary = html.find('div', class_='summary module')\
+                  .find('blockquote', class_='userstuff')
+    all_data['summary'] = summary.get_text()
+
     metadata = html.find('dl', class_='stats')
     # extract out the keys for metadata, such as 'Kudos'
     keys = list()
