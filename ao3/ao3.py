@@ -1,6 +1,8 @@
 import requests
 import codecs
 from bs4 import BeautifulSoup
+from collections import OrderedDict
+import json
 
 AO3_BASE_URL = 'http://archiveofourown.org/'
 FANDOM = 'Lewis%20(TV)'
@@ -37,41 +39,41 @@ def get_work(work_id):
 def parse_work(work_id):
     html = BeautifulSoup(get_work(work_id))
 
-    # TODO: limit to single-chaptered fics
+    # TODO: extend to multi-chaptered fics
 
-    # rating
-    # archive warnings
-    # categories
-    # characters
-    # relationships
-    # additional tags
-    # published date
+    metadata = html.find('dl',class_='stats')
+    # extract out the keys for metadata, such as 'Kudos'
+    keys = list()
+    keys.append('WorkID')
+    for node in metadata.findAll('dt'):
+        keys.append(','.join(node.findAll(text=True)))
 
-    # is in series???
+    # extract out the values for metadata, e.g. the actual number of kudos-es
+    values = list()
+    values.append(work_id)
+    for node in metadata.findAll('dd'):
+        values.append(','.join(node.findAll(text=True)))
+    all_data = OrderedDict(zip(keys, values))
 
-    # kudos
-    # comments
-    # hits
-    # number of bookmarks
+    # extract out the actual text - TODO, can't serialize to JSON
+#    text = html.find('div', class_='userstuff')
+#    all_data['text'] = text
 
-    # actual people who kudos-ed? - some kind of network analysis
-
-    # title
-    # text
-    print work_id
-    text = html.find('div', class_='userstuff')
-    print text
-
-    # notes
+    return all_data
 
 
 def download_fandom():
     last_page_number = get_last_page_number()
-    last_page_number = 3  # DEBUG
+    last_page_number = 3  # DEBUG - remove this line to get all
+
+    all_data = OrderedDict()
     for i in range(1, last_page_number + 1):
         work_ids = get_links_on_page(i)
         for work_id in work_ids:
-            parse_work(work_id)
+            all_data[work_id] = parse_work(work_id)
+
+    with open(FANDOM + '.json', 'w') as f:
+        f.write(json.dumps(all_data))
 
 
-print download_fandom()
+download_fandom()
