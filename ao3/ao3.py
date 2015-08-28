@@ -31,7 +31,7 @@ def get_links_on_page(page_number):
 
 
 def get_work(work_id):
-    url = AO3_BASE_URL + 'works/' + work_id
+    url = AO3_BASE_URL + 'works/' + work_id + '?view_adult=true'
     r = requests.get(url)
     return r.text
 
@@ -44,13 +44,11 @@ def parse_work(work_id):
     metadata = html.find('dl',class_='stats')
     # extract out the keys for metadata, such as 'Kudos'
     keys = list()
-    keys.append('WorkID')
     for node in metadata.findAll('dt'):
         keys.append(','.join(node.findAll(text=True)))
 
     # extract out the values for metadata, e.g. the actual number of kudos-es
     values = list()
-    values.append(work_id)
     for node in metadata.findAll('dd'):
         values.append(','.join(node.findAll(text=True)))
     all_data = OrderedDict(zip(keys, values))
