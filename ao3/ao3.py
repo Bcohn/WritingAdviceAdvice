@@ -40,6 +40,15 @@ def parse_work(work_id):
     print "Parsing work_id %s" % work_id
 
     html = BeautifulSoup(get_work(work_id))
+    all_data = dict()
+
+    # extract title of entire fic
+    title = html.find('h2', class_='title heading')
+    all_data['title'] = title.get_text()
+
+    # extract author(s) of entire fic
+    authors = html.findAll('a', class_='login author')
+    all_data['authors'] = [author.get_text() for author in authors]
 
     metadata = html.find('dl', class_='stats')
     # extract out the keys for metadata, such as 'Kudos'
@@ -51,7 +60,7 @@ def parse_work(work_id):
     values = list()
     for node in metadata.findAll('dd'):
         values.append(','.join(node.findAll(text=True)))
-    all_data = OrderedDict(zip(keys, values))
+    all_data.update(zip(keys, values))
 
     # extract out the actual text - handles single chapters only
     chapters = dict()
