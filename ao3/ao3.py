@@ -31,7 +31,7 @@ def get_links_on_page(page_number):
 
 
 def get_work(work_id):
-    url = AO3_BASE_URL + 'works/' + work_id + '?view_adult=true'
+    url = AO3_BASE_URL + 'works/' + work_id + '?view_adult=true&view_full_work=true'
     r = requests.get(url)
     return r.text
 
@@ -40,8 +40,6 @@ def parse_work(work_id):
     print "Parsing work_id %s" % work_id
 
     html = BeautifulSoup(get_work(work_id))
-
-    # TODO: extend to multi-chaptered fics
 
     metadata = html.find('dl', class_='stats')
     # extract out the keys for metadata, such as 'Kudos'
@@ -56,8 +54,10 @@ def parse_work(work_id):
     all_data = OrderedDict(zip(keys, values))
 
     # extract out the actual text - handles single chapters only
-    text = html.find('div', class_='userstuff').get_text()
-    all_data['text'] = text
+    chapters = dict()
+    for i, chapter_node in enumerate(html.findAll('div', class_='userstuff')):
+        chapters[i+1] = chapter_node.get_text()
+    all_data['text'] = chapters
 
     return all_data
 
