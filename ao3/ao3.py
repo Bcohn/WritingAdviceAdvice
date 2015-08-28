@@ -41,7 +41,7 @@ def parse_work(work_id):
 
     # TODO: extend to multi-chaptered fics
 
-    metadata = html.find('dl',class_='stats')
+    metadata = html.find('dl', class_='stats')
     # extract out the keys for metadata, such as 'Kudos'
     keys = list()
     for node in metadata.findAll('dt'):
